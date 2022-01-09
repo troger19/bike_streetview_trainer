@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "631870226632",
+    "firebase_url": "https://fireapp-6b0de-default-rtdb.firebaseio.com",
+    "project_id": "fireapp-6b0de",
+    "storage_bucket": "fireapp-6b0de.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631870226632:android:ce22263135a1ac6d5565fd",
+        "android_client_info": {
+          "package_name": "com.itible.bike"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "631870226632-s8ratmu1p322l9om2bcq893i1jjsj02u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgT1rKXcBkH7PKq2t_w_3zzD13ZWiA0qg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "631870226632-s8ratmu1p322l9om2bcq893i1jjsj02u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
