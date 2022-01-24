@@ -13,6 +13,7 @@ public class TrainingDao {
 
     public TrainingDao() {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
+        db.setPersistenceEnabled(true);
         databaseReference = db.getReference(TrainingDto.class.getSimpleName());
     }
 

@@ -29,6 +29,7 @@ import com.itible.bike.util.Util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +57,7 @@ public class MonitoringScreen extends Activity {
     private Button btnStart, btnRight, btnLeft, btnFront, btnUrl;
     private WebView webView;
     private String currentLatitude, currentLongitude, finishLatitude, finishLongitude;
+    private List<String> latitudes, longitudes;
     private Spinner spinnerStart, spinnerFinish;
     private TextView txtResults;
     private long startTime, duration;
@@ -95,6 +97,8 @@ public class MonitoringScreen extends Activity {
         spinnerStart = findViewById(R.id.spinnerStart);
         spinnerFinish = findViewById(R.id.spinnerFinish);
 
+        latitudes = new ArrayList<>();
+        longitudes = new ArrayList<>();
         setupElements();
 
     }
@@ -314,10 +318,13 @@ public class MonitoringScreen extends Activity {
             Pattern p = Pattern.compile("(\\d{2}\\.\\d{7})!3d(\\d{2}\\.\\d{7})");
             Matcher m = p.matcher(url);
             if (m.find()) { // set the coordinates
-                currentLongitude = m.group(1);
-                currentLatitude = m.group(2);
+                longitudes.add(m.group(1));
+                latitudes.add(m.group(2));
+                currentLongitude = longitudes.size() == 0 ? null : longitudes.get(longitudes.size() - 1);
+                currentLatitude = latitudes.size() == 0 ? null : latitudes.get(latitudes.size() - 1);
                 if (currentLatitude.equals(finishLatitude) && currentLongitude.equals(finishLongitude)) {
-                    webView.setVisibility(View.GONE);
+//                    webView.setVisibility(View.GONE);
+                    webView.loadUrl(Util.createRouteUrl(longitudes, latitudes));
                     txtResults.setVisibility(View.VISIBLE);
                     duration = (System.nanoTime() - startTime) / 1_000_000_000;
                     txtResults.setText("You have successfully finish the track! \n " +
