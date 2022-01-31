@@ -18,6 +18,7 @@
         <activity
             android:name="com.itible.bike.activity.MonitoringScreen"
             android:exported="false" />
+        <activity android:name="com.itible.bike.activity.MyPreferencesActivity" />
         <activity
             android:name="com.itible.bike.activity.MainActivity"
             android:exported="true">

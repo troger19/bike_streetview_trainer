@@ -29,6 +29,9 @@ import com.itible.bike.util.Util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,11 +41,12 @@ import java.util.regex.Pattern;
 
 public class MonitoringScreen extends Activity {
 
+    private static final String TAG = "MonitoringScreen";
+    private final boolean mIsUserInitiatedDisconnect = false;
     private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
     private ReadInput mReadThread = null;
-    private final boolean mIsUserInitiatedDisconnect = false;
     //    private TextView mTxtReceive;
 //    private Button mBtnClearInput;
 //    private ScrollView scrollView;
@@ -51,17 +55,16 @@ public class MonitoringScreen extends Activity {
     private boolean mIsBluetoothConnected = false;
     private BluetoothDevice mDevice;
     private ProgressDialog progressDialog;
-
-
-    private static final String TAG = "MonitoringScreen";
-    private Button btnStart, btnRight, btnLeft, btnFront, btnUrl;
+    private Instant lastGpsCoordsTime;
+    private Button btnStart, btnRight, btnLeft, btnFront, btnSave;
     private WebView webView;
-    private String currentLatitude, currentLongitude, finishLatitude, finishLongitude;
+    private String currentLatitude, currentLongitude, finishLatitude, finishLongitude, finalUrl;
     private List<String> latitudes, longitudes;
     private Spinner spinnerStart, spinnerFinish;
     private TextView txtResults;
     private long startTime, duration;
     private int movements;
+    public static final String TRAINING_FINAL_URL = "training_final_url";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,7 @@ public class MonitoringScreen extends Activity {
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
         Log.d(TAG, "Ready");
+        lastGpsCoordsTime = Instant.now();
 //        mTxtReceive = findViewById(R.id.txtReceive);
 //        chkScroll = findViewById(R.id.chkScroll);
 //        chkReceiveText = findViewById(R.id.chkReceiveText);
@@ -89,7 +93,7 @@ public class MonitoringScreen extends Activity {
         btnRight = findViewById(R.id.btnRight);
         btnLeft = findViewById(R.id.btnLeft);
         btnFront = findViewById(R.id.btnFront);
-        btnUrl = findViewById(R.id.btnUrl);
+        btnSave = findViewById(R.id.btnSave);
         txtResults = findViewById(R.id.txtResults);
 
         btnStart = findViewById(R.id.btnStart);
@@ -170,7 +174,11 @@ public class MonitoringScreen extends Activity {
         });
 
         btnFront.setOnClickListener(v -> simulateClick(550, 1800));
-        btnUrl.setOnClickListener(v -> getUrl());
+        btnSave.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), SaveTrainingActivity.class);
+            intent.putExtra(TRAINING_FINAL_URL, finalUrl);
+            startActivity(intent);
+        });
         btnRight.setOnClickListener(v -> generateSwipeGesture("right"));
         btnLeft.setOnClickListener(v -> generateSwipeGesture("left"));
     }
@@ -309,6 +317,39 @@ public class MonitoringScreen extends Activity {
         dispatchTouchEvent(event);
     }
 
+    private void msg(String s) {
+        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onPause() {
+        if (mBTSocket != null && mIsBluetoothConnected) {
+            new DisConnectBT().execute();
+        }
+        Log.d(TAG, "Paused");
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        if (mBTSocket == null || !mIsBluetoothConnected) {
+            new ConnectBT().execute();
+        }
+        Log.d(TAG, "Resumed");
+        super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d(TAG, "Stopped");
+        super.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
     /**
      * Reading the current GPS position by parsing streetview map URL during loading of resources
      */
@@ -318,13 +359,29 @@ public class MonitoringScreen extends Activity {
             Pattern p = Pattern.compile("(\\d{2}\\.\\d{7})!3d(\\d{2}\\.\\d{7})");
             Matcher m = p.matcher(url);
             if (m.find()) { // set the coordinates
-                longitudes.add(m.group(1));
-                latitudes.add(m.group(2));
-                currentLongitude = longitudes.size() == 0 ? null : longitudes.get(longitudes.size() - 1);
-                currentLatitude = latitudes.size() == 0 ? null : latitudes.get(latitudes.size() - 1);
+                Instant now = Instant.now();
+                Log.d(TAG, "Duration: " + Duration.between(lastGpsCoordsTime, now).toMillis());
+                if (Duration.between(lastGpsCoordsTime, now).toMillis() > 6000) {
+                    lastGpsCoordsTime = now;
+                    if (longitudes.size() == 0) { // first time insert when empty
+                        longitudes.add(m.group(1));
+                        latitudes.add(m.group(2));
+                    } else { // check for getting rid off bugy GPS value.. next value should be closer than 5,5km.. -> 0.05
+                        if (shouldSaveGpsPosition(m)) {
+                            longitudes.add(m.group(1));
+                            latitudes.add(m.group(2));
+                        }
+                    }
+                }
+
+                currentLongitude = m.group(1);
+                currentLatitude = m.group(2);
                 if (currentLatitude.equals(finishLatitude) && currentLongitude.equals(finishLongitude)) {
+                    longitudes.add(currentLongitude);
+                    latitudes.add(currentLatitude);
 //                    webView.setVisibility(View.GONE);
-                    webView.loadUrl(Util.createRouteUrl(longitudes, latitudes));
+                    finalUrl = Util.createRouteUrl(longitudes, latitudes);
+                    webView.loadUrl(finalUrl);
                     txtResults.setVisibility(View.VISIBLE);
                     duration = (System.nanoTime() - startTime) / 1_000_000_000;
                     txtResults.setText("You have successfully finish the track! \n " +
@@ -334,12 +391,18 @@ public class MonitoringScreen extends Activity {
                 }
             }
         }
+
+    }
+
+    private boolean shouldSaveGpsPosition(Matcher m) {
+        return new BigDecimal(longitudes.get(longitudes.size() - 1)).subtract(new BigDecimal(m.group(1))).abs().compareTo(new BigDecimal("0.05")) < 0 &&
+                new BigDecimal(latitudes.get(latitudes.size() - 1)).subtract(new BigDecimal(m.group(2))).abs().compareTo(new BigDecimal("0.05")) < 0 && !longitudes.get(longitudes.size() - 1).equals(m.group(1)) && !latitudes.get(latitudes.size() - 1).equals(m.group(2));
     }
 
     private class ReadInput implements Runnable {
 
-        private boolean bStop = false;
         private final Thread t;
+        private boolean bStop = false;
 
         public ReadInput() {
             t = new Thread(this, "Input Thread");
@@ -420,39 +483,6 @@ public class MonitoringScreen extends Activity {
 
     }
 
-    private void msg(String s) {
-        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void onPause() {
-        if (mBTSocket != null && mIsBluetoothConnected) {
-            new DisConnectBT().execute();
-        }
-        Log.d(TAG, "Paused");
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        if (mBTSocket == null || !mIsBluetoothConnected) {
-            new ConnectBT().execute();
-        }
-        Log.d(TAG, "Resumed");
-        super.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        Log.d(TAG, "Stopped");
-        super.onStop();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
     private class ConnectBT extends AsyncTask<Void, Void, Void> {
         private boolean mConnectSuccessful = true;
 
@@ -496,6 +526,4 @@ public class MonitoringScreen extends Activity {
         }
 
     }
-
-
 }

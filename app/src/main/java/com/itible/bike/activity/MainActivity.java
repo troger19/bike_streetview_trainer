@@ -34,7 +34,7 @@ import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
-    private Button search, start, btnFirebase;
+    private Button search, start, btnLoadTrainings;
     private ListView listView;
     private BluetoothAdapter mBTAdapter;
     private static final int BT_ENABLE_REQUEST = 10; // This is the code we use for BT Enable
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEVICE_LIST = "com.example.anysensormonitoring.devicelist";
     private static final String DEVICE_LIST_SELECTED = "com.example.anysensormonitoring.devicelistselected";
     public static final String BUFFER_SIZE = "com.example.anysensormonitoring.buffersize";
+    public static final String GPS_COORDS_INTENT = "gps_coords";
     private static final String TAG = "BlueTest5-MainActivity";
 
 
@@ -54,10 +55,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
+        Log.d(TAG, "onCreate: " + user);
+
         search = findViewById(R.id.search);
         start = findViewById(R.id.start);
-        btnFirebase = findViewById(R.id.btnFirebase);
         listView = findViewById(R.id.listview);
+        btnLoadTrainings = findViewById(R.id.btnLoadTrainings);
 
         if (savedInstanceState != null) {
             ArrayList<BluetoothDevice> list = savedInstanceState.getParcelableArrayList(DEVICE_LIST);
@@ -97,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnFirebase.setOnClickListener(arg0 -> {
-            Intent intent = new Intent(getApplicationContext(), SaveTrainingActivity.class);
+        btnLoadTrainings.setOnClickListener(arg0 -> {
+            Intent intent = new Intent(getApplicationContext(), LoadTrainingActivity.class);
             startActivity(intent);
         });
     }
@@ -301,28 +306,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-//            case R.id.action_settings:
-//                Intent intent = new Intent(MainActivity.this, PreferencesActivity.class);
-//                startActivityForResult(intent, SETTINGS);
-//                break;
-            case R.id.loadTrainings:
-                Log.d(TAG, "Clicked on About!");
-                Intent intent = new Intent(MainActivity.this, LoadTrainingActivity.class);
-                startActivity(intent);
-                break;
-//                return true;
-            case R.id.helpMenu:
-                Log.d(TAG, "Clicked on Help!");
-                // Code for Help goes here
-                return true;
-            case R.id.signOutMenu:
-                Log.d(TAG, "Clicked on Sign Out!");
-                // SignOut method call goes here
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            Intent i = new Intent(this, MyPreferencesActivity.class);
+            startActivity(i);
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

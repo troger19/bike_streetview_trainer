@@ -34,10 +34,10 @@
             android:text="Start" />
 
         <Button
-            android:id="@+id/btnUrl"
+            android:id="@+id/btnSave"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="URL" />
+            android:text="Save" />
 
     </LinearLayout>
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="User Detail Preferences">
+        <PreferenceScreen android:title="User Detail">
+            <EditTextPreference
+                android:dialogTitle="Enter Username"
+                android:key="user_preference"
+                android:summary="Username which will be used to store the training."
+                android:title="Username" />
+
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Other">
+        <PreferenceScreen
+            android:summary="Home Page"
+            android:title="About author">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://www.android.com" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,5 +1,7 @@
 package com.itible.bike.util;
 
+import android.graphics.Color;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,12 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.itible.bike.R;
 
 public class EmployeeVH extends RecyclerView.ViewHolder {
-    public TextView txt_name, txt_position, txt_option;
+    public TextView txt_date, txt_distance, txt_map;
 
     public EmployeeVH(@NonNull View itemView) {
         super(itemView);
-        txt_name = itemView.findViewById(R.id.txt_name);
-        txt_position = itemView.findViewById(R.id.txt_position);
-        txt_option = itemView.findViewById(R.id.txt_option);
+        txt_date = itemView.findViewById(R.id.txt_date);
+        txt_distance = itemView.findViewById(R.id.txt_distance);
+        txt_map = itemView.findViewById(R.id.txt_map);
+        txt_map.setMovementMethod(LinkMovementMethod.getInstance());
+        txt_map.setLinkTextColor(Color.BLUE);
     }
 }

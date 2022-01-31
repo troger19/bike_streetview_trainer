@@ -1,8 +1,11 @@
 package com.itible.bike.util;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class Util {
+
+    public static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
     /**
      * Format duration of the training
@@ -34,10 +37,10 @@ public class Util {
      */
     public static String createRouteUrl(List<String> longitudes, List<String> latitudes) {
         String s = "https://www.google.com/maps/dir/";
-        for (int i = 0; i < latitudes.size() - 2; i++) {
-            s = s.concat(longitudes.get(i)).concat(",").concat(latitudes.get(i)).concat("/");
+        for (int i = 0; i <= latitudes.size() - 2; i++) {
+            s = s.concat(latitudes.get(i)).concat(",").concat(longitudes.get(i)).concat("/");
         }
-        s = s.concat("@").concat(longitudes.get(longitudes.size() - 1)).concat(",").concat(latitudes.get(latitudes.size() - 1));
+        s = s.concat("@").concat(latitudes.get(latitudes.size() - 1)).concat(",").concat(longitudes.get(longitudes.size() - 1));
 
         return s.concat("/data=!4m2!4m1!3e2");
     }

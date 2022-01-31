@@ -1,6 +1,8 @@
 package com.itible.bike.activity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,16 +15,19 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.itible.bike.R;
 import com.itible.bike.dao.TrainingDao;
-import com.itible.bike.dto.TrainingDto;
+import com.itible.bike.entity.Training;
+import com.itible.bike.util.DateComparator;
 import com.itible.bike.util.RVAdapter;
 
 import java.util.ArrayList;
+//import com.itible.bike.util.RVAdapter;
+
 
 public class LoadTrainingActivity extends AppCompatActivity {
     SwipeRefreshLayout swipeRefreshLayout;
     RecyclerView recyclerView;
     RVAdapter adapter;
-    TrainingDao dao;
+    TrainingDao trainingDao;
     boolean isLoading = false;
     String key = null;
 
@@ -31,42 +36,47 @@ public class LoadTrainingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load_training);
         swipeRefreshLayout = findViewById(R.id.swip);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
+
         recyclerView = findViewById(R.id.rv);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(manager);
-        adapter = new RVAdapter(this);
+        adapter = new RVAdapter(this, trainingDao);
         recyclerView.setAdapter(adapter);
-        dao = new TrainingDao();
-        loadData();
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                int totalItem = linearLayoutManager.getItemCount();
-                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if (totalItem < lastVisible + 3) {
-                    if (!isLoading) {
-                        isLoading = true;
-                        loadData();
-                    }
-                }
-            }
-        });
+        trainingDao = new TrainingDao();
+        loadData(user);
+//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+//                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+//                int totalItem = linearLayoutManager.getItemCount();
+//                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+//                if (totalItem < lastVisible + 3) {
+//                    if (!isLoading) {
+//                        isLoading = true;
+//                        loadData(user);
+//                    }
+//                }
+//            }
+//        });
     }
 
-    private void loadData() {
+    private void loadData(String username) {
         swipeRefreshLayout.setRefreshing(true);
-        dao.get(key).addListenerForSingleValueEvent(new ValueEventListener() {
+        trainingDao.getByUser(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<TrainingDto> emps = new ArrayList<>();
+                ArrayList<Training> emps = new ArrayList<>();
                 for (DataSnapshot data : snapshot.getChildren()) {
-                    TrainingDto emp = data.getValue(TrainingDto.class);
+                    Training emp = data.getValue(Training.class);
                     emp.setKey(data.getKey());
                     emps.add(emp);
                     key = data.getKey();
                 }
+                emps.sort(new DateComparator());
                 adapter.setItems(emps);
                 adapter.notifyDataSetChanged();
                 isLoading = false;
