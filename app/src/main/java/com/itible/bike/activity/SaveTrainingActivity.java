@@ -28,7 +28,9 @@ public class SaveTrainingActivity extends AppCompatActivity {
         String user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
-        String trainingFinalUrl = b.getString(MonitoringScreen.TRAINING_FINAL_URL);
+        String trainingFinalUrl = b.getString(MonitoringScreen.FINAL_URL);
+        long duration = b.getLong(MonitoringScreen.FINAL_DURATION);
+        int movements = b.getInt(MonitoringScreen.FINAL_MOVEMENTS);
 
 
         btn.setOnClickListener(v -> {
@@ -42,6 +44,8 @@ public class SaveTrainingActivity extends AppCompatActivity {
                 training.setDistance(Integer.parseInt(edit_position.getText().toString()));
                 long date = Calendar.getInstance().getTime().getTime();
                 training.setDate(date);
+                training.setDuration(Math.toIntExact(duration));
+                training.setRpm(Math.round((float) movements / ((float) duration / 60)));
 
                 trainingDao.add(training)
                         .addOnSuccessListener(suc -> {

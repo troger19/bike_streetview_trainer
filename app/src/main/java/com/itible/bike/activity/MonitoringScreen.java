@@ -64,7 +64,9 @@ public class MonitoringScreen extends Activity {
     private TextView txtResults;
     private long startTime, duration;
     private int movements;
-    public static final String TRAINING_FINAL_URL = "training_final_url";
+    public static final String FINAL_URL = "final_url";
+    public static final String FINAL_DURATION = "final_duration";
+    public static final String FINAL_MOVEMENTS = "final_movements";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,7 +178,9 @@ public class MonitoringScreen extends Activity {
         btnFront.setOnClickListener(v -> simulateClick(550, 1800));
         btnSave.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), SaveTrainingActivity.class);
-            intent.putExtra(TRAINING_FINAL_URL, finalUrl);
+            intent.putExtra(FINAL_URL, finalUrl);
+            intent.putExtra(FINAL_DURATION, duration);
+            intent.putExtra(FINAL_MOVEMENTS, movements);
             startActivity(intent);
         });
         btnRight.setOnClickListener(v -> generateSwipeGesture("right"));

@@ -5,6 +5,7 @@ import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.core.text.HtmlCompat;
@@ -57,12 +58,14 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         Training emp = e == null ? list.get(position) : e;
         viewHolder.txt_date.setText(Util.sdf.format(new Date(emp.getDate())));
         viewHolder.txt_distance.setText(String.valueOf(emp.getDistance()));
+        viewHolder.txt_time.setText(Util.formatDuration(emp.getDuration()));
+        viewHolder.txt_rpm.setText(String.valueOf(emp.getRpm()));
         String htmlString = "<a href='" + emp.getTrainingUrl() + "'>mapa</a>";         // string inside html markup objects
         Spanned spanned = HtmlCompat.fromHtml(htmlString, HtmlCompat.FROM_HTML_MODE_LEGACY);
         viewHolder.txt_map.setText(spanned);
-//        viewHolder.txt_distance.setOnClickListener(v -> {
-//            showEditTrainingDialog(emp);
-//        });
+        viewHolder.txt_distance.setOnClickListener(v -> {
+            showEditTrainingDialog(emp);
+        });
 
     }
 
@@ -76,14 +79,14 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      *
      * @param exercise training to edit
      */
-//    private void showEditTrainingDialog(Training exercise) {
-//        LayoutInflater factory = LayoutInflater.from(context);
-//        final View textEntryView = factory.inflate(R.layout.edit_exercise_layout, null);
-//        final EditText edtDate = textEntryView.findViewById(R.id.edt_date);
-//        final EditText edtMax = textEntryView.findViewById(R.id.edt_max_rep);
-//        final EditText edtSum = textEntryView.findViewById(R.id.edt_max_sum);
-//        final EditText edtReps = textEntryView.findViewById(R.id.edt_reps);
-//
+    private void showEditTrainingDialog(Training exercise) {
+        LayoutInflater factory = LayoutInflater.from(context);
+        final View textEntryView = factory.inflate(R.layout.edit_exercise_layout, null);
+        final EditText edtDate = textEntryView.findViewById(R.id.edt_date);
+        final EditText edtMax = textEntryView.findViewById(R.id.edt_max_rep);
+        final EditText edtSum = textEntryView.findViewById(R.id.edt_max_sum);
+        final EditText edtReps = textEntryView.findViewById(R.id.edt_reps);
+
 //        edtDate.setText(Util.sdf.format(exercise.getDate()), TextView.BufferType.EDITABLE);
 //        edtMax.setText(String.valueOf(exercise.getMax()), TextView.BufferType.EDITABLE);
 //        edtSum.setText(String.valueOf(exercise.getSum()), TextView.BufferType.EDITABLE);
@@ -133,5 +136,5 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //
 //        editTrainingDialog.setCanceledOnTouchOutside(false);
 //        editTrainingDialog.show();
-//    }
+    }
 }

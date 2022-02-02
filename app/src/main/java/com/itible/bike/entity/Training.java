@@ -10,15 +10,19 @@ public class Training implements Serializable {
     public long date;
     public String trainingUrl;
     public int distance;
+    public int duration;
+    public int rpm;
     public String name;
 
     public Training() {
     }
 
-    public Training(long date, String trainingUrl, int distance, String name) {
+    public Training(long date, String trainingUrl, int distance, int duration, int rpm, String name) {
         this.date = date;
         this.trainingUrl = trainingUrl;
         this.distance = distance;
+        this.duration = duration;
+        this.rpm = rpm;
         this.name = name;
     }
 
@@ -60,5 +64,21 @@ public class Training implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public int getRpm() {
+        return rpm;
+    }
+
+    public void setRpm(int rpm) {
+        this.rpm = rpm;
     }
 }
