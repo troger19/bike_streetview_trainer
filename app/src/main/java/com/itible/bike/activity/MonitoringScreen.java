@@ -6,10 +6,12 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itible.bike.R;
@@ -47,11 +48,6 @@ public class MonitoringScreen extends Activity {
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
     private ReadInput mReadThread = null;
-    //    private TextView mTxtReceive;
-//    private Button mBtnClearInput;
-//    private ScrollView scrollView;
-//    private CheckBox chkScroll;
-//    private CheckBox chkReceiveText;
     private boolean mIsBluetoothConnected = false;
     private BluetoothDevice mDevice;
     private ProgressDialog progressDialog;
@@ -61,7 +57,6 @@ public class MonitoringScreen extends Activity {
     private String currentLatitude, currentLongitude, finishLatitude, finishLongitude, finalUrl;
     private List<String> latitudes, longitudes;
     private Spinner spinnerStart, spinnerFinish;
-    private TextView txtResults;
     private long startTime, duration;
     private int movements;
     public static final String FINAL_URL = "final_url";
@@ -71,7 +66,6 @@ public class MonitoringScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_monitoring_screen);
         setContentView(R.layout.activity_map);
         ActivityHelper.initialize(this);
 
@@ -82,29 +76,26 @@ public class MonitoringScreen extends Activity {
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
         Log.d(TAG, "Ready");
         lastGpsCoordsTime = Instant.now();
-//        mTxtReceive = findViewById(R.id.txtReceive);
-//        chkScroll = findViewById(R.id.chkScroll);
-//        chkReceiveText = findViewById(R.id.chkReceiveText);
-//        scrollView = findViewById(R.id.viewScroll);
-//        mBtnClearInput = findViewById(R.id.btnClearInput);
-//        mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
-//
-//        mBtnClearInput.setOnClickListener(arg0 -> mTxtReceive.setText(""));
-
-
         btnRight = findViewById(R.id.btnRight);
         btnLeft = findViewById(R.id.btnLeft);
         btnFront = findViewById(R.id.btnFront);
         btnSave = findViewById(R.id.btnSave);
-        txtResults = findViewById(R.id.txtResults);
-
         btnStart = findViewById(R.id.btnStart);
+
+        btnSave.setVisibility(View.GONE);
+        btnLeft.setVisibility(View.GONE);
+        btnFront.setVisibility(View.GONE);
+        btnRight.setVisibility(View.GONE);
+
         webView = findViewById(R.id.wv_browser);
         spinnerStart = findViewById(R.id.spinnerStart);
         spinnerFinish = findViewById(R.id.spinnerFinish);
 
         latitudes = new ArrayList<>();
         longitudes = new ArrayList<>();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String mpk = sharedPref.getString(MyPreferencesActivity.BIKE_MULTIPLICATOR, "5"); // TODO toto este zapracovat
+
         setupElements();
 
     }
@@ -169,9 +160,12 @@ public class MonitoringScreen extends Activity {
                 Toast.makeText(getApplicationContext(), "Please select the finish place!", Toast.LENGTH_LONG).show();
             } else {
                 webView.setVisibility(View.VISIBLE);
-                txtResults.setVisibility(View.GONE);
                 webView.loadUrl(Places.valueOf(spinnerStart.getSelectedItem().toString()).getUrl());
                 startTime = System.nanoTime();
+                btnStart.setVisibility(View.GONE);
+                btnLeft.setVisibility(View.VISIBLE);
+                btnFront.setVisibility(View.VISIBLE);
+                btnRight.setVisibility(View.VISIBLE);
             }
         });
 
@@ -212,11 +206,6 @@ public class MonitoringScreen extends Activity {
                 pointerCoords, 0, 0, 1, 1, 0, 0, 0, 0);
         dispatchTouchEvent(motionEvent);
         movements++;
-    }
-
-    private void getUrl() {
-        Log.i(TAG, "latitude = " + currentLatitude);
-        Log.i(TAG, "longitude = " + currentLongitude);
     }
 
     public void generateSwipeGesture(String direction) {
@@ -383,15 +372,14 @@ public class MonitoringScreen extends Activity {
                 if (currentLatitude.equals(finishLatitude) && currentLongitude.equals(finishLongitude)) {
                     longitudes.add(currentLongitude);
                     latitudes.add(currentLatitude);
-//                    webView.setVisibility(View.GONE);
                     finalUrl = Util.createRouteUrl(longitudes, latitudes);
                     webView.loadUrl(finalUrl);
-                    txtResults.setVisibility(View.VISIBLE);
                     duration = (System.nanoTime() - startTime) / 1_000_000_000;
-                    txtResults.setText("You have successfully finish the track! \n " +
-                            "Duration = " + Util.formatDuration(duration) + "\n " +
-                            "Number of movements = " + movements
-                    );
+                    btnSave.setVisibility(View.VISIBLE);
+                    btnLeft.setVisibility(View.GONE);
+                    btnFront.setVisibility(View.GONE);
+                    btnRight.setVisibility(View.GONE);
+                    Toast.makeText(getApplicationContext(), "Please retain the distance and click Save button!", Toast.LENGTH_LONG).show();
                 }
             }
         }

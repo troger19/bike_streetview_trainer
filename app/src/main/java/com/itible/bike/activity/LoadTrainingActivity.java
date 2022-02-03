@@ -44,24 +44,10 @@ public class LoadTrainingActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(manager);
+        trainingDao = new TrainingDao();
         adapter = new RVAdapter(this, trainingDao);
         recyclerView.setAdapter(adapter);
-        trainingDao = new TrainingDao();
         loadData(user);
-//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-//                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//                int totalItem = linearLayoutManager.getItemCount();
-//                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-//                if (totalItem < lastVisible + 3) {
-//                    if (!isLoading) {
-//                        isLoading = true;
-//                        loadData(user);
-//                    }
-//                }
-//            }
-//        });
     }
 
     private void loadData(String username) {

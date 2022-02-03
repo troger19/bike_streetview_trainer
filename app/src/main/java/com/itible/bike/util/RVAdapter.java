@@ -1,22 +1,30 @@
 package com.itible.bike.util;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.itible.bike.R;
+import com.itible.bike.activity.MainActivity;
 import com.itible.bike.dao.TrainingDao;
 import com.itible.bike.entity.Training;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
@@ -83,58 +91,41 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LayoutInflater factory = LayoutInflater.from(context);
         final View textEntryView = factory.inflate(R.layout.edit_exercise_layout, null);
         final EditText edtDate = textEntryView.findViewById(R.id.edt_date);
-        final EditText edtMax = textEntryView.findViewById(R.id.edt_max_rep);
-        final EditText edtSum = textEntryView.findViewById(R.id.edt_max_sum);
-        final EditText edtReps = textEntryView.findViewById(R.id.edt_reps);
+        final EditText edtDistance = textEntryView.findViewById(R.id.edt_distance);
 
-//        edtDate.setText(Util.sdf.format(exercise.getDate()), TextView.BufferType.EDITABLE);
-//        edtMax.setText(String.valueOf(exercise.getMax()), TextView.BufferType.EDITABLE);
-//        edtSum.setText(String.valueOf(exercise.getSum()), TextView.BufferType.EDITABLE);
-//        edtReps.setText(String.valueOf(exercise.getReps()), TextView.BufferType.EDITABLE);
-//        loadStatistics(exercise.getName());
-//
-//        Dialog editTrainingDialog = new AlertDialog.Builder(context)
-//                .setIcon(android.R.drawable.ic_dialog_alert)
-//                .setTitle("Edit Values:").setView(textEntryView)
-//                .setPositiveButton("Save", (dialog, which) -> {
-//                    if (!Util.insertedValuesCheck(edtMax.getText().toString(), edtSum.getText().toString(), edtReps.getText().toString())) {
-//                        Toast.makeText(context, "Zadane hodnoty nie su v poriadku", Toast.LENGTH_LONG).show();
-//                        return;
-//                    }
-//                    HashMap<String, Object> hashMap = new HashMap<>();
-//                    try {
-//                        hashMap.put("date", Util.sdf.parse(edtDate.getText().toString()).getTime());
-//                        hashMap.put("max", Integer.valueOf(edtMax.getText().toString()));
-//                        hashMap.put("sum", Integer.valueOf(edtSum.getText().toString()));
-//                        hashMap.put("reps", String.valueOf(edtReps.getText()));
-//                    } catch (ParseException e) {
-//                        e.printStackTrace();
-//                    }
-//                    exerciseDao.update(exercise.getKey(), hashMap)
-//                            .addOnSuccessListener(suc -> Toast.makeText(context, "Record is updated", Toast.LENGTH_SHORT).show()).addOnFailureListener(er -> Toast.makeText(context, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
-//
-//                    boolean updateStatistics = false;
-//                    HashMap<String, Object> hashMap1 = new HashMap<>();
-//                    hashMap1.put("name", statistics.getName());
-//                    if (Integer.parseInt(edtSum.getText().toString()) > statistics.getMaxSum()) {// if sum record is made
-//                        hashMap1.put("maxSum", Integer.parseInt(edtSum.getText().toString()));
-//                        updateStatistics = true;
-//                    }
-//                    if (Integer.parseInt(edtMax.getText().toString()) > statistics.getMaxReps()) {  // if max record is made
-//                        hashMap1.put("maxReps", Integer.parseInt(edtMax.getText().toString()));
-//                        updateStatistics = true;
-//                    }
-//                    if (updateStatistics) {
-//                        statisticsDao.update(statistics.getKey(), hashMap1)
-//                                .addOnSuccessListener(suc -> Toast.makeText(context, "Statistics is updated", Toast.LENGTH_SHORT).show()).addOnFailureListener(er -> Toast.makeText(context, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
-//                    }
-//                    Intent intent = new Intent(context, MainActivity.class);
-//                    context.startActivity(intent);
-//                })
-//                .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
-//                .create();
-//
-//        editTrainingDialog.setCanceledOnTouchOutside(false);
-//        editTrainingDialog.show();
+        edtDate.setText(Util.sdf.format(exercise.getDate()), TextView.BufferType.EDITABLE);
+        edtDistance.setText(String.valueOf(exercise.getDistance()), TextView.BufferType.EDITABLE);
+
+        Dialog editTrainingDialog = new AlertDialog.Builder(context)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Edit Values:").setView(textEntryView)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    HashMap<String, Object> hashMap = new HashMap<>();
+                    try {
+                        hashMap.put("date", Util.sdf.parse(edtDate.getText().toString()).getTime());
+                        hashMap.put("distance", Integer.valueOf(edtDistance.getText().toString()));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    trainingDao.update(exercise.getKey(), hashMap)
+                            .addOnSuccessListener(suc -> Toast.makeText(context, "Record is updated", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(er -> Toast.makeText(context, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
+
+                    Intent intent = new Intent(context, MainActivity.class);
+                    context.startActivity(intent);
+                })
+                .setNeutralButton("Delete", (dialog, which) -> {
+                    trainingDao.remove(exercise.getKey())
+                            .addOnSuccessListener(suc -> Toast.makeText(context, "Record is deleted", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(er -> Toast.makeText(context, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
+
+                    Intent intent = new Intent(context, MainActivity.class);
+                    context.startActivity(intent);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                .create();
+
+        editTrainingDialog.setCanceledOnTouchOutside(false);
+        editTrainingDialog.show();
     }
 }

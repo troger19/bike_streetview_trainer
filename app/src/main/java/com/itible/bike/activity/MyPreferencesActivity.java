@@ -15,6 +15,7 @@ public class MyPreferencesActivity extends PreferenceActivity {
     final static String SENDING_SMS = "alarm_preference";
     public final static String USER_PREF = "user_preference";
     public final static String EXERCISE_NAME_PREF = "exercise_name_preference";
+    public final static String BIKE_MULTIPLICATOR = "bike_paddle_multiplicator_preference";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

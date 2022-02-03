@@ -23,7 +23,7 @@ public class SaveTrainingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_save);
         final EditText edit_position = findViewById(R.id.edit_distance);
-        Button btn = findViewById(R.id.btn_submit);
+        Button btnSubmit = findViewById(R.id.btn_submit);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
         Intent intent = getIntent();
@@ -33,7 +33,7 @@ public class SaveTrainingActivity extends AppCompatActivity {
         int movements = b.getInt(MonitoringScreen.FINAL_MOVEMENTS);
 
 
-        btn.setOnClickListener(v -> {
+        btnSubmit.setOnClickListener(v -> {
             if (edit_position.getText().toString().isEmpty()) {
                 Toast.makeText(getApplicationContext(), "You must enter the distance!", Toast.LENGTH_SHORT).show();
             } else {

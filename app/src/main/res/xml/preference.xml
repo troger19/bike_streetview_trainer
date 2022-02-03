@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="User Detail Preferences">
+    <PreferenceCategory android:title="GeneralPreferences">
         <PreferenceScreen android:title="User Detail">
             <EditTextPreference
                 android:dialogTitle="Enter Username"
                 android:key="user_preference"
                 android:summary="Username which will be used to store the training."
                 android:title="Username" />
-
+        </PreferenceScreen>
+        <PreferenceScreen android:title="Bike Detail">
+            <EditTextPreference
+                android:dialogTitle="Enter Paddle multiplicator"
+                android:key="bike_paddle_multiplicator_preference"
+                android:summary="How many paddle revolutions for 1 step forward."
+                android:title="Paddle multiplicator" />
         </PreferenceScreen>
     </PreferenceCategory>
 

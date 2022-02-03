@@ -12,17 +12,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/edt_max_rep" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/edt_max_sum" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/edt_reps" />
+        android:id="@+id/edt_distance" />
 
 
 </LinearLayout>
