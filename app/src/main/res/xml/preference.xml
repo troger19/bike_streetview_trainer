@@ -15,6 +15,11 @@
                 android:key="bike_paddle_multiplicator_preference"
                 android:summary="How many paddle revolutions for 1 step forward."
                 android:title="Paddle multiplicator" />
+            <EditTextPreference
+                android:dialogTitle="Enter saving position interval in seconds"
+                android:key="save_position_interval_preference"
+                android:summary="Interval in seconds in which the current GPS coordinated will be saved."
+                android:title="Saving interval" />
         </PreferenceScreen>
     </PreferenceCategory>
 

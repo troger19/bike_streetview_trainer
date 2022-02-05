@@ -16,6 +16,7 @@ public class MyPreferencesActivity extends PreferenceActivity {
     public final static String USER_PREF = "user_preference";
     public final static String EXERCISE_NAME_PREF = "exercise_name_preference";
     public final static String BIKE_MULTIPLICATOR = "bike_paddle_multiplicator_preference";
+    public final static String SAVE_POSITION_INTERVAL = "save_position_interval_preference";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -45,7 +45,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.training_item, parent, false);
-        return new EmployeeVH(view);
+        return new TrainingVH(view);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param e
      */
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, Training e) {
-        EmployeeVH viewHolder = (EmployeeVH) holder;
+        TrainingVH viewHolder = (TrainingVH) holder;
         Training emp = e == null ? list.get(position) : e;
         viewHolder.txt_date.setText(Util.sdf.format(new Date(emp.getDate())));
         viewHolder.txt_distance.setText(String.valueOf(emp.getDistance()));

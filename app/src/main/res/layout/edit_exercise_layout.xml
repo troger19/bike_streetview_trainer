@@ -7,12 +7,14 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/edt_date" />
+        android:id="@+id/edt_date"
+        android:maxLength="10" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/edt_distance" />
-
+        android:id="@+id/edt_distance"
+        android:inputType="number"
+        android:maxLength="3" />
 
 </LinearLayout>

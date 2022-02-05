@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.itible.bike.R;
 
-public class EmployeeVH extends RecyclerView.ViewHolder {
+public class TrainingVH extends RecyclerView.ViewHolder {
     public TextView txt_date, txt_distance, txt_map, txt_time, txt_rpm;
 
-    public EmployeeVH(@NonNull View itemView) {
+    public TrainingVH(@NonNull View itemView) {
         super(itemView);
         txt_date = itemView.findViewById(R.id.txt_date);
         txt_distance = itemView.findViewById(R.id.txt_distance);

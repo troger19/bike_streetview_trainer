@@ -42,6 +42,9 @@ import java.util.regex.Pattern;
 
 public class MonitoringScreen extends Activity {
 
+    public static final String FINAL_URL = "final_url";
+    public static final String FINAL_DURATION = "final_duration";
+    public static final String FINAL_MOVEMENTS = "final_movements";
     private static final String TAG = "MonitoringScreen";
     private final boolean mIsUserInitiatedDisconnect = false;
     private int mMaxChars = 50000;//Default
@@ -57,11 +60,8 @@ public class MonitoringScreen extends Activity {
     private String currentLatitude, currentLongitude, finishLatitude, finishLongitude, finalUrl;
     private List<String> latitudes, longitudes;
     private Spinner spinnerStart, spinnerFinish;
-    private long startTime, duration;
-    private int movements;
-    public static final String FINAL_URL = "final_url";
-    public static final String FINAL_DURATION = "final_duration";
-    public static final String FINAL_MOVEMENTS = "final_movements";
+    private long startTime, duration, savePositionInterval;
+    private int movements, multiplicator, currentTurn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +94,10 @@ public class MonitoringScreen extends Activity {
         latitudes = new ArrayList<>();
         longitudes = new ArrayList<>();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String mpk = sharedPref.getString(MyPreferencesActivity.BIKE_MULTIPLICATOR, "5"); // TODO toto este zapracovat
-
+        String mpk = sharedPref.getString(MyPreferencesActivity.BIKE_MULTIPLICATOR, "5");
+        String spi = sharedPref.getString(MyPreferencesActivity.SAVE_POSITION_INTERVAL, "6");
+        multiplicator = Integer.parseInt(mpk);
+        savePositionInterval = Long.parseLong(spi);
         setupElements();
 
     }
@@ -343,6 +345,11 @@ public class MonitoringScreen extends Activity {
         super.onSaveInstanceState(outState);
     }
 
+    private boolean shouldSaveGpsPosition(Matcher m) {
+        return new BigDecimal(longitudes.get(longitudes.size() - 1)).subtract(new BigDecimal(m.group(1))).abs().compareTo(new BigDecimal("0.05")) < 0 &&
+                new BigDecimal(latitudes.get(latitudes.size() - 1)).subtract(new BigDecimal(m.group(2))).abs().compareTo(new BigDecimal("0.05")) < 0 && !longitudes.get(longitudes.size() - 1).equals(m.group(1)) && !latitudes.get(latitudes.size() - 1).equals(m.group(2));
+    }
+
     /**
      * Reading the current GPS position by parsing streetview map URL during loading of resources
      */
@@ -354,7 +361,7 @@ public class MonitoringScreen extends Activity {
             if (m.find()) { // set the coordinates
                 Instant now = Instant.now();
                 Log.d(TAG, "Duration: " + Duration.between(lastGpsCoordsTime, now).toMillis());
-                if (Duration.between(lastGpsCoordsTime, now).toMillis() > 6000) {
+                if (Duration.between(lastGpsCoordsTime, now).toMillis() > savePositionInterval * 1000) {
                     lastGpsCoordsTime = now;
                     if (longitudes.size() == 0) { // first time insert when empty
                         longitudes.add(m.group(1));
@@ -386,11 +393,6 @@ public class MonitoringScreen extends Activity {
 
     }
 
-    private boolean shouldSaveGpsPosition(Matcher m) {
-        return new BigDecimal(longitudes.get(longitudes.size() - 1)).subtract(new BigDecimal(m.group(1))).abs().compareTo(new BigDecimal("0.05")) < 0 &&
-                new BigDecimal(latitudes.get(latitudes.size() - 1)).subtract(new BigDecimal(m.group(2))).abs().compareTo(new BigDecimal("0.05")) < 0 && !longitudes.get(longitudes.size() - 1).equals(m.group(1)) && !latitudes.get(latitudes.size() - 1).equals(m.group(2));
-    }
-
     private class ReadInput implements Runnable {
 
         private final Thread t;
@@ -420,8 +422,11 @@ public class MonitoringScreen extends Activity {
                         }
                         final String strInput = new String(buffer, 0, i);
                         Log.i(TAG, strInput);
-                        if (strInput.trim().equals("5") || strInput.trim().equals("6")) {
-                            simulateClick(600, 1400);
+                        if (strInput.trim().equals("5") || strInput.trim().equals("6")) { //TODO doladit s Arduonom
+                            if (currentTurn == multiplicator) {
+                                simulateClick(600, 1400);
+                                currentTurn = 0;
+                            }
                         }
                     }
                     Thread.sleep(500);
@@ -504,7 +509,7 @@ public class MonitoringScreen extends Activity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
 
-//            if (!mConnectSuccessful) {  //TODO odkomentuj
+//            if (!mConnectSuccessful) {  //TODO odkomentuj ked uz bude BT
             if (false) {
                 Toast.makeText(getApplicationContext(), "Could not connect to device. Is it a Serial device? Also check if the UUID is correct in the settings", Toast.LENGTH_LONG).show();
                 finish();
