@@ -422,14 +422,15 @@ public class MonitoringScreen extends Activity {
                         }
                         final String strInput = new String(buffer, 0, i);
                         Log.i(TAG, strInput);
-                        if (strInput.trim().equals("5") || strInput.trim().equals("6")) { //TODO doladit s Arduonom
-                            if (currentTurn == multiplicator) {
+                        if (strInput.trim().equals("1")) { //TODO doladit s Arduinom
+                            currentTurn++;
+                            if (currentTurn >= multiplicator) {
                                 simulateClick(600, 1400);
                                 currentTurn = 0;
                             }
                         }
                     }
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                 }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
